@@ -1,0 +1,24 @@
+{
+    "name": "mymage/saasykit-peachpayments",
+    "description": "PeachPayments integration for SaasyKit",
+    "version": "0.0.1",
+    "type": "library",
+    "require": {
+        "php": "^7.3|^8.0",
+        "peachpayments/checkout-sdk": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "MyMage\\SaasykitPeachpayments\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "MyMage\\SaasykitPeachpayments\\SaasykitPeachpaymentsServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}

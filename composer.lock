@@ -1,0 +1,79 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "a3b57d3023fad496454edf10d94b41bb",
+    "packages": [
+        {
+            "name": "peachpayments/checkout-sdk",
+            "version": "v1.4.0",
+            "source": {
+                "type": "git",
+                "url": "https://gitlab.com/p2886/checkout-php-sdk.git",
+                "reference": "8c518262972aba69f16f4d25cc795f73c51475e2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://gitlab.com/api/v4/projects/p2886%2Fcheckout-php-sdk/repository/archive.zip?sha=8c518262972aba69f16f4d25cc795f73c51475e2",
+                "reference": "8c518262972aba69f16f4d25cc795f73c51475e2",
+                "shasum": ""
+            },
+            "require": {
+                "ext-curl": "*",
+                "ext-json": "*",
+                "ext-mbstring": "*",
+                "php": ">=7.4.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^9.5"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "PeachPayments\\": "lib/",
+                    "PeachPayments\\http\\": "lib/http",
+                    "PeachPayments\\Checkout\\": "lib/Checkout",
+                    "PeachPayments\\Payments\\": "lib/Payments",
+                    "PeachPayments\\Signature\\": "lib/Signature"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-3-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Peach Payments and contributors",
+                    "homepage": "https://gitlab.com/peachpayments/payment-links-sdks"
+                }
+            ],
+            "description": "Peach Payments - Checkout SDK.",
+            "homepage": "https://peachpayments.com/",
+            "keywords": [
+                "api",
+                "checkout",
+                "payment processing",
+                "peach payment",
+                "peach payments"
+            ],
+            "support": {
+                "issues": "https://gitlab.com/p2886/checkout-php-sdk/-/issues",
+                "source": "https://gitlab.com/p2886/checkout-php-sdk/-/tree/v1.4.0"
+            },
+            "time": "2025-01-09T12:38:27+00:00"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "dev",
+    "stability-flags": {},
+    "prefer-stable": true,
+    "prefer-lowest": false,
+    "platform": {
+        "php": "^7.3|^8.0"
+    },
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
+}
