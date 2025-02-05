@@ -1,13 +1,13 @@
 <?php
 
 // PaymentProvidersSeeder path that will be updated to ensure Peach payments entry is added
-$seederFile = __DIR__ . '/../../database/seeders/PaymentProvidersSeeder.php';
+$filePath = __DIR__ . '/../../database/seeders/PaymentProvidersSeeder.php';
 
-if (!file_exists($seederFile)) {
+if (!file_exists($filePath)) {
     exit("PaymentProvidersSeeder.php not found\n");
 }
 
-$content = file_get_contents($seederFile);
+$content = file_get_contents($filePath);
 
 // Check if the Peachpayments entry already exists
 if (strpos($content, "'slug' => 'peachpayments'") !== false) {
@@ -40,6 +40,6 @@ if ($insertPos > 0 && $content[$insertPos - 1] !== "\n") {
 
 // Insert the Peachpayments entry at the found position
 $newContent = substr_replace($content, $peachpaymentsEntry, $insertPos, 0);
-file_put_contents($seederFile, $newContent);
+file_put_contents($filePath, $newContent);
 
 echo "Peachpayments entry added to PaymentProvidersSeeder.php\n";

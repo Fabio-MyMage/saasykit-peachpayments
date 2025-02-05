@@ -25,7 +25,7 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
 
         // Publish Peachpayments logo to the public images folder
         $this->publishes([
-            __DIR__ . '/images/peachpayments.png' => public_path('images/payment-providers/peachpayments.png'),
+            __DIR__ . '/public/images/payment-providers/peachpayments.png' => public_path('images/payment-providers/peachpayments.png'),
         ], 'public');
 
         // Publish the Peachpayments settings view
@@ -34,10 +34,16 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
                 resource_path('views/livewire/filament/peachpayments-settings.blade.php'),
         ], 'views');
 
-        // Publish the Peachpayments settings view
+        // Publish the PaymentProviderResource settings view
         $this->publishes([
             __DIR__ . '/resources/views/filament/admin/resources/payment-provider-resource/pages/peachpayments-settings.blade.php' =>
                 resource_path('views/filament/admin/resources/payment-provider-resource/pages/peachpayments-settings.blade.php'),
         ], 'views');
+
+        // Publish the Peachpayments controller to the application's Http controllers directory
+        $this->publishes([
+            __DIR__ . '/app/Http/Controllers/PaymentProviders/PeachpaymentsController.php' =>
+                app_path('Http/Controllers/PaymentProviders/PeachpaymentsController.php'),
+        ], 'controllers');
     }
 }

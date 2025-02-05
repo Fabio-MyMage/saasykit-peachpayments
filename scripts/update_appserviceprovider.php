@@ -1,5 +1,6 @@
 <?php
 
+// PaymentProviderResource path that will be updated to ensure Peachpayments provider is added
 $filePath = __DIR__ . '/../../app/Providers/AppServiceProvider.php';
 
 if (!file_exists($filePath)) {
