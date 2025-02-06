@@ -50,5 +50,15 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__ . '/app/Filament/Admin/Resources/PaymentProviderResource/Pages/PeachpaymentSettings.php' => app_path('Filament/Admin/Resources/PaymentProviderResource/Pages/PeachpaymentSettings.php'),
         ], 'filament-pages');
+
+        // Publish the peachpayments-how-to.blade.php file
+        $this->publishes([
+            __DIR__ . '/resources/views/filament/admin/resources/payment-provider-resource/pages/partials/peachpayments-how-to.blade.php' => resource_path('views/filament/admin/resources/payment-provider-resource/pages/partials/peachpayments-how-to.blade.php'),
+        ], 'partials');
+
+        // Publish the PeachpaymentsSettings.php file
+        $this->publishes([
+            __DIR__ . '/app/Livewire/Filament/PeachpaymentsSettings.php' => app_path('Livewire/Filament/PeachpaymentsSettings.php'),
+        ], 'livewire-components');
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace MyMage\SaasykitPeachpayments\Livewire\Filament;
+namespace App\Livewire\Filament;
 
 use App\Services\ConfigManager;
 use Filament\Forms\Components\Section;
@@ -28,7 +28,7 @@ class PeachpaymentsSettings extends Component implements HasForms
 
     public function render()
     {
-        return view('saasykit-peachpayments::livewire.filament.peachpayments-settings');
+        return view('livewire.filament.peachpayments-settings');
     }
 
     public function mount(): void

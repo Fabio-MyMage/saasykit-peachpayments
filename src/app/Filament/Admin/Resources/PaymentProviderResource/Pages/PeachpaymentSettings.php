@@ -9,7 +9,7 @@ class PeachpaymentsSettings extends Page
 {
     protected static string $resource = PaymentProviderResource::class;
 
-    protected static string $view = 'saasykit-peachpayments::admin.resources.payment-provider-resource.pages.peachpayments-settings';
+    protected static string $view = 'filament.admin.resources.payment-provider-resource.pages.peachpayments-settings';
 
     public function mount(): void
     {
