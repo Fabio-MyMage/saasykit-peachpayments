@@ -45,5 +45,10 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
             __DIR__ . '/app/Http/Controllers/PaymentProviders/PeachpaymentsController.php' =>
                 app_path('Http/Controllers/PaymentProviders/PeachpaymentsController.php'),
         ], 'controllers');
+
+        // Publish the PeachpaymentSettings.php file
+        $this->publishes([
+            __DIR__ . '/app/Filament/Admin/Resources/PaymentProviderResource/Pages/PeachpaymentSettings.php' => app_path('Filament/Admin/Resources/PaymentProviderResource/Pages/PeachpaymentSettings.php'),
+        ], 'filament-pages');
     }
 }
