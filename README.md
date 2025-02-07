@@ -11,23 +11,18 @@ To install the PeachPayments package, follow these steps:
 
 ### 1. Composer installtion
 
-<details>
 ```
 composer require mymage/saasykit-peachpayments
 ```
-</details>
 
 ### 2. Laravel file publishing
 
-<details>
 ```
 php artisan vendor:publish --provider=\"MyMage\\SaasykitPeachpayments\\SaasykitPeachpaymentsServiceProvider\"
 ```
-</details>
 
 ### 3. Update `AppServiceProvider.php`
 
-<details>
 Ensure `use` statement is included:
 
 ```php
@@ -45,11 +40,8 @@ $this->app->tag([
 ], 'payment-providers');
 ```
 
-</details>
-
 ### 4. Update `PaymentProviderResource.php`
 
-<details>
 Ensure the settings page is included:
 
 ```php
@@ -66,11 +58,8 @@ public static function getPages(): array
 }
 ```
 
-</details>
-
 ### 5. Update `PaymentProvidersSeeder.php`, `PaymentProviderConstants.php` and `ConfigConstants.php`
 
-<details>
 Ensure the entry in the seeder is added in `PaymentProvidersSeeder.php`:
 
 ```php
@@ -97,13 +86,10 @@ Ensure the following array values are defined in both `ENCRYPTED_CONFIGS` and `O
 'services.peachpayments.webhook_signing_secret',
 ```
 
-</details>
-
 ### 6. Run Laravel DB Seeders
 
-<details>
 ```
 php artisan db:seed --class=PaymentProvidersSeeder"
 ```
-</details>
+
 </details>
