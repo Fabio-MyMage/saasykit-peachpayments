@@ -34,8 +34,8 @@ class PeachpaymentsSettings extends Component implements HasForms
     public function mount(): void
     {
         $this->form->fill([
-            'secret_key' => $this->configManager->get('services.peachpayments.secret_key'),
-            'publishable_key' => $this->configManager->get('services.peachpayments.publishable_key'),
+            'entity_id' => $this->configManager->get('services.peachpayments.entity_id'),
+            'access_token' => $this->configManager->get('services.peachpayments.access_token'),
             'webhook_signing_secret' => $this->configManager->get('services.peachpayments.webhook_signing_secret'),
         ]);
     }
@@ -46,16 +46,16 @@ class PeachpaymentsSettings extends Component implements HasForms
             ->schema([
                 Section::make()
                     ->schema([
-                        TextInput::make('publishable_key')
-                            ->label(__('Publishable Key'))
-                            ->helperText(new HtmlString(__('The peachpayments publishable key is used to authenticate requests from the peachpayments JavaScript library. Check out the <strong><a href="https://peachpayments.com/docs/keys" target="_blank">peachpayments documentation</a></strong> for more information.'))),
-                        TextInput::make('secret_key')
-                            ->label(__('Secret Key'))
+                        TextInput::make('entity_id')
+                            ->label(__('Entity ID'))
+                            ->helperText(new HtmlString(__('The peachpayments Entity ID key is used to authenticate requests for peachpayments Hosted checked. Check out the <strong><a href="https://developer.peachpayments.com/docs/checkout-hosted" target="_blank">peachpayments documentation</a></strong> for more information.'))),
+                        TextInput::make('access_token')
+                            ->label(__('Access Token'))
                             ->password()
-                            ->helperText(new HtmlString(__('The peachpayments secret key is used to authenticate requests to the peachpayments API. Check out the <strong><a href="https://peachpayments.com/docs/keys" target="_blank">peachpayments documentation</a></strong> for more information.'))),
+                            ->helperText(new HtmlString(__('The peachpayments Access token is used to authenticate requests to the peachpayments API. Check out the <strong><a href="https://developer.peachpayments.com/docs/checkout-hosted" target="_blank">peachpayments documentation</a></strong> for more information.'))),
                         TextInput::make('webhook_signing_secret')
                             ->label(__('Webhook Signing Secret'))
-                            ->helperText(new HtmlString(__('The peachpayments webhook signing secret is used to verify that incoming webhooks are from peachpayments. Check out the <strong><a href="https://peachpayments.com/docs/webhooks/signatures" target="_blank">peachpayments documentation</a></strong> for more information.'))),
+                            ->helperText(new HtmlString(__('The peachpayments webhook signing secret is used to verify that incoming webhooks are from peachpayments. Check out the <strong><a href="https://developer.peachpayments.com/docs/reference-webhooks" target="_blank">peachpayments documentation</a></strong> for more information.'))),
                     ])->columnSpan([
                         'sm' => 6,
                         'xl' => 8,
@@ -78,8 +78,8 @@ class PeachpaymentsSettings extends Component implements HasForms
     {
         $data = $this->form->getState();
 
-        $this->configManager->set('services.peachpayments.secret_key', $data['secret_key']);
-        $this->configManager->set('services.peachpayments.publishable_key', $data['publishable_key']);
+        $this->configManager->set('services.peachpayments.entity_id', $data['entity_id']);
+        $this->configManager->set('services.peachpayments.access_token', $data['access_token']);
         $this->configManager->set('services.peachpayments.webhook_signing_secret', $data['webhook_signing_secret']);
 
         Notification::make()

@@ -60,7 +60,7 @@ public static function getPages(): array
 
 ### 5. Update `PaymentProvidersSeeder.php`, `PaymentProviderConstants.php` and `ConfigConstants.php`
 
-Ensure the entry in the seeder is added in `PaymentProvidersSeeder.php`:
+Ensure the entry for the seeder is added in `PaymentProvidersSeeder.php`:
 
 ```php
 [
