@@ -11,23 +11,23 @@
         </li>
         <li class="pb-4">
             <p>
-                {{ __('Depending whether you want to use the test or live environment, you might need to tick the "Test mode" switch in the top right corner.') }}
+                {{ __('Ensure you are in the correct environment. Either Live or Sandbox.') }}
             </p>
         </li>
         <li class="pb-4">
             <strong>
-                {{ __('Publishable key') }}
+                {{ __('Entity ID') }}
             </strong>
             <p>
-                {{ __('On the top menu, click on "Developers" > "API keys". Copy the "Publishable key" and enter it into the field in the form.') }}
+                {{ __('On the left menu, click on "Checkout". Copy the "Entity ID" from the "Hosted Checkout" section and enter it into the field in the form.') }}
             </p>
         </li>
         <li class="pb-4">
             <strong>
-                {{ __('Secret key') }}
+                {{ __('Access key') }}
             </strong>
             <p>
-                {{ __('On the same page, click "Reveal live key token" and copy the "Secret key" and enter it into the field in the form.') }}
+                {{ __('On the same page, click copy the "Secret token" from the "Hosted Checkout" and enter it into the field in the form.') }}
             </p>
         </li>
         <li class="pb-4">
