@@ -9,6 +9,7 @@ class PeachpaymentsController extends Controller
 {
     public function handleWebhook(Request $request)
     {
-        // Handle webhook events from Peachpayments
+        // TODO handle the webhook
+        return response()->json(['status' => 'success']);
     }
 }

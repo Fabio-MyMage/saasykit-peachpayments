@@ -82,14 +82,25 @@ Ensure the following array values are defined in both `ENCRYPTED_CONFIGS` and `O
 
 ```php
 'services.peachpayments.entity_id',
-'services.peachpayments.access_token',
-'services.peachpayments.webhook_signing_secret',
+'services.peachpayments.secret_token',
 ```
 
 ### 6. Run Laravel DB Seeders
 
 ```
 php artisan db:seed --class=PaymentProvidersSeeder"
+```
+
+### 7. Add the webhook Route
+
+Ensure the following route is defined in `routes/web.php`
+
+```
+// Peachpayments hosted checkout webhook
+Route::post('/pp-hosted/secure/webhook', [
+    App\Http\Controllers\PaymentProviders\PeachpaymentsController::class,
+    'handleWebhook',
+])->name('payments-providers.peachpayments.webhook');
 ```
 
 </details>
