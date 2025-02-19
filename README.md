@@ -53,7 +53,7 @@ public static function getPages(): array
         'stripe-settings' => Pages\StripeSettings::route('/stripe-settings'),
         'paddle-settings' => Pages\PaddleSettings::route('/paddle-settings'),
         'lemon-squeezy-settings' => Pages\LemonSqueezySettings::route('/lemon-squeezy-settings'),
-        'peachpayments-settings' => Pages\PeachPaymentsSettings::route('/peachpayments-settings'), // <----- Add this line
+        'peach-payments-settings' => Pages\PeachPaymentsSettings::route('/peach-payments-settings'),
     ];
 }
 ```
@@ -75,7 +75,7 @@ Ensure the entry for the seeder is added in `PaymentProvidersSeeder.php`:
 Ensure the slug constant is added in `PaymentProviderConstants.php`
 
 ```php
-public const PEACHPAYMENTS_SLUG = 'peachpayments';
+public const PEACHPAYMENTS_SLUG = 'peach-payments';
 ```
 
 Ensure the following array values are defined in both `ENCRYPTED_CONFIGS` and `OVERRIDABLE_CONFIGS` constants in `ConfigConstants.php`:

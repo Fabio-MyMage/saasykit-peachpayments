@@ -17,7 +17,7 @@ class SaasykitPeachPaymentsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/public/images/payment-providers/peachpayments.png' => public_path('images/payment-providers/peachpayments.png'),
+            __DIR__ . '/public/images/payment-providers/peach-payments.png' => public_path('images/payment-providers/peach-payments.png'),
         ], 'public-images');
 
         $this->publishes([
@@ -35,12 +35,12 @@ class SaasykitPeachPaymentsServiceProvider extends ServiceProvider
         ], 'app-livewire-filament');
 
         $this->publishes([
-            __DIR__ . '/resources/views/livewire/filament/peachpayments-settings.blade.php' =>
-                resource_path('views/livewire/filament/peachpayments-settings.blade.php'),
-            __DIR__ . '/resources/views/filament/admin/resources/payment-provider-resource/pages/peachpayments-settings.blade.php' =>
-                resource_path('views/filament/admin/resources/payment-provider-resource/pages/peachpayments-settings.blade.php'),
-            __DIR__ . '/resources/views/filament/admin/resources/payment-provider-resource/pages/partials/peachpayments-how-to.blade.php' =>
-                resource_path('views/filament/admin/resources/payment-provider-resource/pages/partials/peachpayments-how-to.blade.php'),
+            __DIR__ . '/resources/views/livewire/filament/peach-payments-settings.blade.php' =>
+                resource_path('views/livewire/filament/peach-payments-settings.blade.php'),
+            __DIR__ . '/resources/views/filament/admin/resources/payment-provider-resource/pages/peach-payments-settings.blade.php' =>
+                resource_path('views/filament/admin/resources/payment-provider-resource/pages/peach-payments-settings.blade.php'),
+            __DIR__ . '/resources/views/filament/admin/resources/payment-provider-resource/pages/partials/peach-payments-how-to.blade.php' =>
+                resource_path('views/filament/admin/resources/payment-provider-resource/pages/partials/peach-payments-how-to.blade.php'),
         ], 'resources-views');
 
         $this->publishes([

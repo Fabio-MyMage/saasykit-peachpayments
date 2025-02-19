@@ -28,7 +28,7 @@ class PeachPaymentsSettings extends Component implements HasForms
 
     public function render()
     {
-        return view('livewire.filament.peachpayments-settings');
+        return view('livewire.filament.peach-payments-settings');
     }
 
     public function mount(): void
@@ -60,7 +60,7 @@ class PeachPaymentsSettings extends Component implements HasForms
                 Section::make()->schema([
                     ViewField::make('how-to')
                         ->label(__('peachpayments Settings'))
-                        ->view('filament.admin.resources.payment-provider-resource.pages.partials.peachpayments-how-to'),
+                        ->view('filament.admin.resources.payment-provider-resource.pages.partials.peach-payments-how-to'),
                 ])->columnSpan([
                     'sm' => 6,
                     'xl' => 4,
