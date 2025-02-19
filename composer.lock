@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a3b57d3023fad496454edf10d94b41bb",
+    "content-hash": "c43d12b58668b46bed3c996a5e94743a",
     "packages": [
         {
             "name": "peachpayments/checkout-sdk",

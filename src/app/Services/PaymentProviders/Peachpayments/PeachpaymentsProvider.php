@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\PaymentProviders\Peachpayments;
+namespace App\Services\PaymentProviders\PeachPayments;
 
 use App\Models\Discount;
 use App\Models\OneTimeProduct;
@@ -21,7 +21,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use App\Filament\Dashboard\Resources\SubscriptionResource;
-use Peachpayments\Checkout\CheckoutAPI;
+use PeachPayments\Checkout\CheckoutAPI;
 use App\Services\CalculationManager;
 use App\Services\DiscountManager;
 use App\Services\OneTimeProductManager;
@@ -29,7 +29,7 @@ use App\Services\PaymentProviders\PaymentProviderInterface;
 use App\Services\PlanManager;
 use App\Services\SubscriptionManager;
 
-class PeachpaymentsProvider implements PaymentProviderInterface
+class PeachPaymentsProvider implements PaymentProviderInterface
 {
     private $client;
 
@@ -40,7 +40,7 @@ class PeachpaymentsProvider implements PaymentProviderInterface
 
     public function getName(): string
     {
-        return 'Peachpayments';
+        return 'PeachPayments';
     }
 
     public function createSubscriptionCheckoutRedirectLink(Plan $plan, Subscription $subscription, ?Discount $discount = null): string

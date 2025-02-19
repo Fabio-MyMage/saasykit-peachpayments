@@ -1,16 +1,16 @@
 <?php
 
-namespace MyMage\SaasykitPeachpayments;
+namespace MyMage\SaasykitPeachPayments;
 
 use Illuminate\Support\ServiceProvider;
-use App\Services\PaymentProviders\Peachpayments\PeachpaymentsProvider;
+use App\Services\PaymentProviders\PeachPayments\PeachPaymentsProvider;
 
-class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
+class SaasykitPeachPaymentsServiceProvider extends ServiceProvider
 {
     public function register()
     {
         $this->app->tag([
-            PeachpaymentsProvider::class,
+            PeachPaymentsProvider::class,
         ], 'payment-providers');
     }
 
@@ -21,17 +21,17 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
         ], 'public-images');
 
         $this->publishes([
-            __DIR__ . '/app/Http/Controllers/PaymentProviders/PeachpaymentsController.php' =>
-                app_path('Http/Controllers/PaymentProviders/PeachpaymentsController.php'),
+            __DIR__ . '/app/Http/Controllers/PaymentProviders/PeachPaymentsController.php' =>
+                app_path('Http/Controllers/PaymentProviders/PeachPaymentsController.php'),
         ], 'app-http-controllers-payment-providers');
 
         $this->publishes([
-            __DIR__ . '/app/Services/PaymentProviders/Peachpayments' =>
-                app_path('Services/PaymentProviders/Peachpayments'),
+            __DIR__ . '/app/Services/PaymentProviders/PeachPayments' =>
+                app_path('Services/PaymentProviders/PeachPayments'),
         ], 'app-services-payment-providers-peachpayments');
 
         $this->publishes([
-            __DIR__ . '/app/Livewire/Filament/PeachpaymentsSettings.php' => app_path('Livewire/Filament/PeachpaymentsSettings.php'),
+            __DIR__ . '/app/Livewire/Filament/PeachPaymentsSettings.php' => app_path('Livewire/Filament/PeachPaymentsSettings.php'),
         ], 'app-livewire-filament');
 
         $this->publishes([
@@ -44,8 +44,8 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
         ], 'resources-views');
 
         $this->publishes([
-            __DIR__ . '/app/Filament/Admin/Resources/PaymentProviderResource/Pages/PeachpaymentSettings.php' =>
-                app_path('Filament/Admin/Resources/PaymentProviderResource/Pages/PeachpaymentSettings.php'),
+            __DIR__ . '/app/Filament/Admin/Resources/PaymentProviderResource/Pages/PeachPaymentSettings.php' =>
+                app_path('Filament/Admin/Resources/PaymentProviderResource/Pages/PeachPaymentSettings.php'),
         ], 'app-filament-admin-resources-payment-provider-resource-pages');
     }
 }

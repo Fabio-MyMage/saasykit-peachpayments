@@ -9,13 +9,13 @@
     },
     "autoload": {
         "psr-4": {
-            "MyMage\\SaasykitPeachpayments\\": "src/"
+            "MyMage\\SaasykitPeachPayments\\": "src/"
         }
     },
     "extra": {
         "laravel": {
             "providers": [
-                "MyMage\\SaasykitPeachpayments\\SaasykitPeachpaymentsServiceProvider"
+                "MyMage\\SaasykitPeachPayments\\SaasykitPeachPaymentsServiceProvider"
             ]
         }
     },

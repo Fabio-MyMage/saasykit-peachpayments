@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services\PaymentProviders\Peachpayments;
+namespace App\Services\PaymentProviders\PeachPayments;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -8,7 +8,7 @@ use App\Services\OrderManager;
 use App\Services\TransactionManager;
 use App\Services\SubscriptionManager;
 
-class PeachpaymentsProvider
+class PeachPaymentsProvider
 {
     public function __construct(
         private SubscriptionManager $subscriptionManager,

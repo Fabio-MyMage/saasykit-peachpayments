@@ -13,7 +13,7 @@ use Filament\Notifications\Notification;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
 
-class PeachpaymentsSettings extends Component implements HasForms
+class PeachPaymentsSettings extends Component implements HasForms
 {
     private ConfigManager $configManager;
 

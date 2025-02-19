@@ -1,12 +1,12 @@
 <div class="px-4">
 
     <p class="pb-4">
-        {{__('To integrate Peachpayments with your application, you need to do the following steps:')}}
+        {{__('To integrate PeachPayments with your application, you need to do the following steps:')}}
     </p>
     <ol class="list-decimal ">
         <li class="pb-4">
             <strong>
-                {{ __('Login to ') }} <a href="https://dashboard.peachpayments.com/" target="_blank" class="text-blue-500 hover:underline">{{ __('Peachpayments Dashboard') }}</a>
+                {{ __('Login to ') }} <a href="https://dashboard.peachpayments.com/" target="_blank" class="text-blue-500 hover:underline">{{ __('PeachPayments Dashboard') }}</a>
             </strong>
         </li>
         <li class="pb-4">

@@ -18,7 +18,7 @@ composer require mymage/saasykit-peachpayments
 ### 2. Laravel file publishing
 
 ```
-php artisan vendor:publish --provider="MyMage\SaasykitPeachpayments\SaasykitPeachpaymentsServiceProvider"
+php artisan vendor:publish --provider="MyMage\SaasykitPeachPayments\SaasykitPeachPaymentsServiceProvider"
 ```
 
 ### 3. Update `AppServiceProvider.php`
@@ -26,17 +26,17 @@ php artisan vendor:publish --provider="MyMage\SaasykitPeachpayments\SaasykitPeac
 Ensure `use` statement is included:
 
 ```php
-use App\Services\PaymentProviders\Peachpayments\PeachpaymentsProvider;
+use App\Services\PaymentProviders\PeachPayments\PeachPaymentsProvider;
 ```
 
-Then add `PeachpaymentsProvider` class:
+Then add `PeachPaymentsProvider` class:
 
 ```php
 $this->app->tag([
     StripeProvider::class,
     PaddleProvider::class,
     LemonSqueezyProvider::class,
-    PeachpaymentsProvider::class, // <----- Add this line
+    PeachPaymentsProvider::class, // <----- Add this line
 ], 'payment-providers');
 ```
 
@@ -53,7 +53,7 @@ public static function getPages(): array
         'stripe-settings' => Pages\StripeSettings::route('/stripe-settings'),
         'paddle-settings' => Pages\PaddleSettings::route('/paddle-settings'),
         'lemon-squeezy-settings' => Pages\LemonSqueezySettings::route('/lemon-squeezy-settings'),
-        'peachpayments-settings' => Pages\PeachpaymentsSettings::route('/peachpayments-settings'), // <----- Add this line
+        'peachpayments-settings' => Pages\PeachPaymentsSettings::route('/peachpayments-settings'), // <----- Add this line
     ];
 }
 ```
@@ -64,7 +64,7 @@ Ensure the entry for the seeder is added in `PaymentProvidersSeeder.php`:
 
 ```php
 [
-    'name' => 'Peachpayments',
+    'name' => 'PeachPayments',
     'slug' => PaymentProviderConstants::PEACHPAYMENTS_SLUG,
     'type' => 'multi',
     'created_at' => now()->format('Y-m-d H:i:s'),
@@ -96,9 +96,9 @@ php artisan db:seed --class=PaymentProvidersSeeder"
 Ensure the following route is defined in `routes/web.php`
 
 ```
-// Peachpayments hosted checkout webhook
+// PeachPayments hosted checkout webhook
 Route::post('/pp-hosted/secure/webhook', [
-    App\Http\Controllers\PaymentProviders\PeachpaymentsController::class,
+    App\Http\Controllers\PaymentProviders\PeachPaymentsController::class,
     'handleWebhook',
 ])->name('payments-providers.peachpayments.webhook');
 ```

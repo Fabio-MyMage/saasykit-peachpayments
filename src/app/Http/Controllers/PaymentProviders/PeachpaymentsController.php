@@ -4,9 +4,9 @@ namespace App\Http\Controllers\PaymentProviders;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\PaymentProviders\Stripe\PeachpaymentsWebhookHandler;
+use App\Services\PaymentProviders\Stripe\PeachPaymentsWebhookHandler;
 
-class PeachpaymentsController extends Controller
+class PeachPaymentsController extends Controller
 {
     public function handleWebhook(Request $request)
     {
