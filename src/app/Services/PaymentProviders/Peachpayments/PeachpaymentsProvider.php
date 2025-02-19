@@ -35,7 +35,7 @@ class PeachPaymentsProvider implements PaymentProviderInterface
 
     public function getSlug(): string
     {
-        return 'peachpayments';
+        return 'peach-payments';
     }
 
     public function getName(): string
