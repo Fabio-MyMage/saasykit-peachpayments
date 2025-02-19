@@ -64,7 +64,7 @@ Ensure the entry for the seeder is added in `PaymentProvidersSeeder.php`:
 
 ```php
 [
-    'name' => 'PeachPayments',
+    'name' => 'Peach Payments',
     'slug' => PaymentProviderConstants::PEACHPAYMENTS_SLUG,
     'type' => 'multi',
     'created_at' => now()->format('Y-m-d H:i:s'),

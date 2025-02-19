@@ -40,7 +40,7 @@ class PeachPaymentsProvider implements PaymentProviderInterface
 
     public function getName(): string
     {
-        return 'PeachPayments';
+        return 'Peach Payments';
     }
 
     public function createSubscriptionCheckoutRedirectLink(Plan $plan, Subscription $subscription, ?Discount $discount = null): string
