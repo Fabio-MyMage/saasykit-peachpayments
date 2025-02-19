@@ -26,7 +26,7 @@ php artisan vendor:publish --provider="MyMage\SaasykitPeachpayments\SaasykitPeac
 Ensure `use` statement is included:
 
 ```php
-use MyMage\SaasykitPeachpayments\PaymentProviders\PeachpaymentsProvider;
+use App\Services\PaymentProviders\Peachpayments\PeachpaymentsProvider;
 ```
 
 Then add `PeachpaymentsProvider` class:
