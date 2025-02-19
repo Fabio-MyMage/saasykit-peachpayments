@@ -18,7 +18,7 @@ composer require mymage/saasykit-peachpayments
 ### 2. Laravel file publishing
 
 ```
-php artisan vendor:publish --provider=\"MyMage\\SaasykitPeachpayments\\SaasykitPeachpaymentsServiceProvider\"
+php artisan vendor:publish --provider="MyMage\SaasykitPeachpayments\SaasykitPeachpaymentsServiceProvider"
 ```
 
 ### 3. Update `AppServiceProvider.php`

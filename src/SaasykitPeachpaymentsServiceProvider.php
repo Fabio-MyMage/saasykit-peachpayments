@@ -3,14 +3,12 @@
 namespace MyMage\SaasykitPeachpayments;
 
 use Illuminate\Support\ServiceProvider;
-use MyMage\SaasykitPeachpayments\PaymentProviders\PeachpaymentsProvider;
+use App\Services\PaymentProviders\Peachpayments\PeachpaymentsProvider;
 
 class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
 {
     public function register()
     {
-        $this->mergeConfigFrom(__DIR__ . '/config/peachpayments.php', 'peachpayments');
-
         $this->app->tag([
             PeachpaymentsProvider::class,
         ], 'payment-providers');
@@ -19,10 +17,6 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/config/peachpayments.php' => config_path('peachpayments.php'),
-        ], 'config');
-
-        $this->publishes([
             __DIR__ . '/public/images/payment-providers/peachpayments.png' => public_path('images/payment-providers/peachpayments.png'),
         ], 'public-images');
 
@@ -30,6 +24,11 @@ class SaasykitPeachpaymentsServiceProvider extends ServiceProvider
             __DIR__ . '/app/Http/Controllers/PaymentProviders/PeachpaymentsController.php' =>
                 app_path('Http/Controllers/PaymentProviders/PeachpaymentsController.php'),
         ], 'app-http-controllers-payment-providers');
+
+        $this->publishes([
+            __DIR__ . '/app/Services/PaymentProviders/Peachpayments' =>
+                app_path('Services/PaymentProviders/Peachpayments'),
+        ], 'app-services-payment-providers-peachpayments');
 
         $this->publishes([
             __DIR__ . '/app/Livewire/Filament/PeachpaymentsSettings.php' => app_path('Livewire/Filament/PeachpaymentsSettings.php'),
