@@ -89,7 +89,7 @@ class PeachPaymentsProvider implements PaymentProviderInterface
                 $order->id,
                 $currencyCode,
                 $orderAmount,
-                'https://httpbin.org/post'//TODO replace with actual URL
+                route('payments-providers.peachpayments.webhook')
             );
             $response = $client->checkout->initiateSession($options, url('/'));
 
