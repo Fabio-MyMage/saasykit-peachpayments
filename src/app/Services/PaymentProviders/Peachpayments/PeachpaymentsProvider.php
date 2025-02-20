@@ -60,7 +60,7 @@ class PeachPaymentsProvider implements PaymentProviderInterface
 
     public function createProductCheckoutRedirectLink(Order $order, ?Discount $discount = null): string
     {
-        $orderAmount = floatval(number_format($order->total_amount_after_discount / 100, 2));
+        $orderAmount = (float)number_format($order->total_amount_after_discount / 100, 2, '.', '');
         $currencyCode = $order->currency()->firstOrFail()->code;
         $supportedCurrencies = [
             Currency::ZAR,
@@ -76,12 +76,21 @@ class PeachPaymentsProvider implements PaymentProviderInterface
                 throw new \Exception('Unsupported currency: ' . $currencyCode);
             }
 
-            $client = new CheckoutClient(config('services.peachpayments.entity_id'), config('services.peachpayments.secret_token'));
+            $client = new CheckoutClient(
+                config('services.peachpayments.entity_id'),
+                config('services.peachpayments.secret_token')
+            );
+            # Switch to sandbox environment in development
             if (!app()->environment('production')) {
                 $client->enableTestMode();
             }
 
-            $options = new CheckoutOptions($order->id, $currencyCode, $orderAmount, 'https://httpbin.org/post'); //TODO replace with actual URL
+            $options = new CheckoutOptions(
+                $order->id,
+                $currencyCode,
+                $orderAmount,
+                'https://httpbin.org/post'//TODO replace with actual URL
+            );
             $response = $client->checkout->initiateSession($options, url('/'));
 
             if ($response->code == 201) {
