@@ -4,12 +4,12 @@ namespace App\Http\Controllers\PaymentProviders;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\PaymentProviders\Stripe\PeachPaymentsWebhookHandler;
+use App\Services\PaymentProviders\PeachPayments\PeachPaymentsWebhookHandler;
 
 class PeachPaymentsController extends Controller
 {
-    public function handleWebhook(Request $request)
+    public function handleWebhook(Request $request, PeachPaymentsWebhookHandler $handler)
     {
-        return response()->json(['status' => 'success']);
+        return $handler->handleWebhook($request);
     }
 }

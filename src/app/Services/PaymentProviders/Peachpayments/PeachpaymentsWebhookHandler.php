@@ -7,8 +7,9 @@ use Illuminate\Http\JsonResponse;
 use App\Services\OrderManager;
 use App\Services\TransactionManager;
 use App\Services\SubscriptionManager;
+use PeachPayments\Signature;
 
-class PeachPaymentsProvider
+class PeachPaymentsWebhookHandler
 {
     public function __construct(
         private SubscriptionManager $subscriptionManager,
@@ -18,12 +19,30 @@ class PeachPaymentsProvider
 
     public function handleWebhook(Request $request): JsonResponse
     {
-        try {
-            // TODO
-            return response()->json(['message' => 'Webhook handled successfully']);
-        } catch (\Exception $e) {
-            // TODO
-            return response()->json(['error' => $e->getMessage()], 500);
+        if (!$this->validateSignature($request)) {
+            return response()->json([
+                'message' => 'Invalid signature',
+            ], 400);
         }
+
+        return response()->json([
+            'message' => 'Webhook received and validated',
+        ]);
+    }
+
+    private function validateSignature(Request $request): bool
+    {
+        $secret = config('services.peachpayments.secret_token');
+        $signature = Signature::generate($request->all(), $secret);
+        $receivedSignature = $request->input('signature');
+
+        if ($signature === $receivedSignature) {
+            return true;
+          } else {
+            return false;
+          }
+
+
+        return true;
     }
 }
