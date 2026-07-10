@@ -1,8 +1,13 @@
 {
     "name": "mymage/saasykit-peachpayments",
     "description": "Peach Payments integration for SaasyKit",
-    "version": "0.2.0",
     "type": "library",
+    "license": "MIT",
+    "keywords": ["saasykit", "peach-payments", "laravel", "payments", "subscriptions"],
+    "homepage": "https://github.com/Fabio-MyMage/saasykit-peachpayments",
+    "authors": [
+        { "name": "Fabio", "email": "fabio@mymage.io" }
+    ],
     "require": {
         "php": "^8.2"
     },
