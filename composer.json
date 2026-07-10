@@ -1,11 +1,10 @@
 {
     "name": "mymage/saasykit-peachpayments",
-    "description": "PeachPayments integration for SaasyKit",
-    "version": "0.0.1",
+    "description": "Peach Payments integration for SaasyKit",
+    "version": "0.2.0",
     "type": "library",
     "require": {
-        "php": "^7.3|^8.0",
-        "peachpayments/checkout-sdk": "^1.0"
+        "php": "^8.2"
     },
     "autoload": {
         "psr-4": {
