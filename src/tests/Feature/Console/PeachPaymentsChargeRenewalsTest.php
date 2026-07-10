@@ -43,7 +43,10 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
             'status' => SubscriptionStatus::ACTIVE->value,
             'ends_at' => Carbon::now()->subDay()->startOfSecond(),
             'payment_provider_subscription_id' => 'reg-success-1',
-            'extra_payment_provider_data' => ['registration_id' => 'reg-success-1'],
+            'extra_payment_provider_data' => [
+                'registration_id' => 'reg-success-1',
+                'initial_transaction_id' => 'init-cit-1',
+            ],
             'price' => 1999,
         ]);
         $expectedNewEndsAt = Carbon::parse($subscription->ends_at)->addMonth();
@@ -67,6 +70,12 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
             'status' => TransactionStatus::SUCCESS->value,
             'payment_provider_transaction_id' => 'pay-renew-success-1',
         ]);
+
+        // The MIT charge must carry the stored initial (CIT) transaction id.
+        Http::assertSent(function ($request) {
+            return str_contains($request->url(), '/v1/registrations/reg-success-1/payments')
+                && ($request['standingInstruction.initialTransactionId'] ?? null) === 'init-cit-1';
+        });
     }
 
     public function test_due_subscription_is_marked_past_due_on_first_failure(): void

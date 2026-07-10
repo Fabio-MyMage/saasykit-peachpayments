@@ -241,6 +241,8 @@ class PeachPaymentsWebhookHandlerTest extends FeatureTest
         $this->assertArrayHasKey('registration_id', $subscription->extra_payment_provider_data);
         $this->assertEquals('reg-abc-123', $subscription->extra_payment_provider_data['registration_id']);
         $this->assertArrayHasKey('checkout_id', $subscription->extra_payment_provider_data);
+        // Initial (CIT) transaction id stored for later MIT charges.
+        $this->assertEquals($payload['id'], $subscription->extra_payment_provider_data['initial_transaction_id']);
         $this->assertTrue(Carbon::parse($subscription->ends_at)->isFuture());
 
         $this->assertDatabaseHas('transactions', [

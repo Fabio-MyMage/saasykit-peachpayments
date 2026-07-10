@@ -207,11 +207,19 @@ class PeachPaymentsChargeRenewals extends Command
             base_convert((string) now()->timestamp, 10, 36)
         );
 
+        $chargeExtra = ['merchantTransactionId' => $merchantTransactionId];
+
+        // Peach requires the initial (CIT) transaction id on every subsequent MIT charge.
+        // Omit it if unknown rather than sending a wrong value (it is NOT the registration id).
+        if (! empty($extra['initial_transaction_id'])) {
+            $chargeExtra['standingInstruction.initialTransactionId'] = $extra['initial_transaction_id'];
+        }
+
         $response = $this->peachPaymentsClient->chargeRegistration(
             $registrationId,
             $chargeAmount,
             $currencyCode,
-            ['merchantTransactionId' => $merchantTransactionId]
+            $chargeExtra
         );
 
         $resultCode = (string) ($response['result']['code'] ?? '');

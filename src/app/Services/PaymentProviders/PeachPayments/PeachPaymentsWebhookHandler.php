@@ -374,6 +374,10 @@ class PeachPaymentsWebhookHandler
 
             $extraData = $this->mergeCardMetadata($extraData, $checkoutId, $registrationId, $checkoutStatus);
 
+            // Store the initial (CIT) transaction id: Peach requires it as
+            // standingInstruction.initialTransactionId on every subsequent MIT charge.
+            $extraData['initial_transaction_id'] = $paymentId;
+
             $endsAt = now()->add($subscription->interval->date_identifier, $subscription->interval_count);
 
             $this->subscriptionService->updateSubscription($subscription, [
@@ -431,6 +435,13 @@ class PeachPaymentsWebhookHandler
             }
 
             $extraData = $this->mergeCardMetadata($extraData, $checkoutId, $registrationId, $checkoutStatus);
+
+            // The stored card was replaced, so the MIT lineage for the new credential
+            // restarts here: record this verification charge as the new initial (CIT)
+            // transaction. Only when an actual charge occurred (real payment id).
+            if ($paymentId !== '' && $paymentId !== $checkoutId) {
+                $extraData['initial_transaction_id'] = $paymentId;
+            }
 
             // Only the registration id / card metadata changes here - status, type
             // and ends_at are untouched.
