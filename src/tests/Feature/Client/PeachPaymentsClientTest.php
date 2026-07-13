@@ -187,8 +187,9 @@ class PeachPaymentsClientTest extends FeatureTest
             $this->assertEquals('USD', $request['currency']);
             $this->assertEquals('DB', $request['paymentType']);
             $this->assertEquals('REPEATED', $request['standingInstruction.mode']);
-            $this->assertEquals('UNSCHEDULED', $request['standingInstruction.type']);
+            $this->assertEquals('RECURRING', $request['standingInstruction.type']);
             $this->assertEquals('MIT', $request['standingInstruction.source']);
+            $this->assertEquals('SUBSCRIPTION', $request['standingInstruction.recurringType']);
             $this->assertEquals(['Bearer recurring-access-token-123'], $request->header('Authorization'));
 
             return true;

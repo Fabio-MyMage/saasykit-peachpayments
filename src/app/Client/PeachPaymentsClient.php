@@ -67,8 +67,9 @@ class PeachPaymentsClient
             'currency' => $currency,
             'paymentType' => 'DB',
             'standingInstruction.mode' => 'REPEATED',
-            'standingInstruction.type' => 'UNSCHEDULED',
+            'standingInstruction.type' => 'RECURRING',
             'standingInstruction.source' => 'MIT',
+            'standingInstruction.recurringType' => 'SUBSCRIPTION',
         ], $extra);
 
         $response = Http::withToken(config('services.peachpayments.recurring_access_token'))

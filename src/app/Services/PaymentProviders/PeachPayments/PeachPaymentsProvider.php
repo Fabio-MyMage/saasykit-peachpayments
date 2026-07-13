@@ -144,6 +144,14 @@ class PeachPaymentsProvider implements PaymentProviderInterface
             'notificationUrl' => route('payments-providers.peachpayments.webhook'),
             'cancelUrl' => $this->getSubscriptionCheckoutCancelUrl($plan, $subscription),
             'createRegistration' => true,
+            // Card-scheme MIT consent lineage: declare on the initial (CIT) payment that
+            // the stored card will be charged for a recurring subscription, so subsequent
+            // merchant-initiated renewal charges can skip 3DS (mirrors Peach's own plugins).
+            'standingInstruction' => [
+                'mode' => 'INITIAL',
+                'type' => 'RECURRING',
+                'recurringType' => 'SUBSCRIPTION',
+            ],
             'customParameters' => [
                 'subscription_uuid' => $subscription->uuid,
             ],
@@ -233,6 +241,13 @@ class PeachPaymentsProvider implements PaymentProviderInterface
             'notificationUrl' => route('payments-providers.peachpayments.webhook'),
             'cancelUrl' => $this->getSubscriptionCheckoutCancelUrl($subscription->plan, $subscription),
             'createRegistration' => true,
+            // The new stored card starts a fresh MIT lineage for this subscription's
+            // recurring charges (see createSubscriptionCheckoutRedirectLink).
+            'standingInstruction' => [
+                'mode' => 'INITIAL',
+                'type' => 'RECURRING',
+                'recurringType' => 'SUBSCRIPTION',
+            ],
             'customParameters' => [
                 'pm_change_subscription_uuid' => $subscription->uuid,
             ],
