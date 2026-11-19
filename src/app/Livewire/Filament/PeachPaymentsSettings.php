@@ -11,9 +11,9 @@ use Filament\Forms\Contracts\HasForms;
 use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
+use Illuminate\Contracts\View\View;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
-use Illuminate\Contracts\View\View;
 
 class PeachPaymentsSettings extends Component implements HasForms
 {

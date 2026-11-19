@@ -6,10 +6,15 @@ use App\Constants\PaymentProviderConstants;
 use App\Constants\SubscriptionStatus;
 use App\Constants\SubscriptionType;
 use App\Constants\TransactionStatus;
+use App\Events\Subscription\InvoicePaymentFailed;
 use App\Models\Currency;
 use App\Models\PaymentProvider;
 use App\Models\Subscription;
+use App\Models\Transaction;
+use App\Services\TransactionService;
 use Carbon\Carbon;
+use Illuminate\Http\Client\ConnectionException;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\Http;
 use Tests\Feature\FeatureTest;
 
@@ -254,7 +259,7 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
     public function test_a_card_change_charge_after_the_period_end_is_not_mistaken_for_the_renewal(): void
     {
         $subscription = $this->dueSubscription();
-        $this->app->make(\App\Services\TransactionService::class)->createForSubscription($subscription, 100, 0, 0, 0, $this->currency,
+        $this->app->make(TransactionService::class)->createForSubscription($subscription, 100, 0, 0, 0, $this->currency,
             $this->paymentProvider, 'card-change-1', '000.000.000', TransactionStatus::SUCCESS);
         $this->fakeCharge('000.000.000', 'pay-renewal');
 
@@ -292,7 +297,7 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
         Http::fake(['https://sandbox-card.peachpayments.com/v1/registrations/*' => function () use (&$attempts, &$lost) {
             $attempts++;
             if ($lost) {
-                throw new \Illuminate\Http\Client\ConnectionException('timed out');
+                throw new ConnectionException('timed out');
             }
 
             return Http::response(['id' => 'pay-after-release', 'result' => ['code' => '000.000.000']], 200);
@@ -321,7 +326,7 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
 
         $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
 
-        $charged = fn (Subscription $subscription) => \App\Models\Transaction::where('subscription_id', $subscription->id)->value('amount');
+        $charged = fn (Subscription $subscription) => Transaction::where('subscription_id', $subscription->id)->value('amount');
         $this->assertSame([1000, 2000, 1500], [(int) $charged($once), (int) $charged($expired), (int) $charged($forever)]);
         $this->assertArrayNotHasKey('discount', $once->fresh()->extra_payment_provider_data);
         $this->assertArrayNotHasKey('discount', $expired->fresh()->extra_payment_provider_data);
@@ -332,7 +337,7 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
     {
         $subscription = $this->dueSubscription();
         $seen = null;
-        \Illuminate\Support\Facades\Event::listen(\App\Events\Subscription\InvoicePaymentFailed::class, function ($event) use (&$seen) {
+        Event::listen(InvoicePaymentFailed::class, function ($event) use (&$seen) {
             $seen = Subscription::find($event->subscription->id)->status;
         });
         $this->fakeCharge('800.100.151');

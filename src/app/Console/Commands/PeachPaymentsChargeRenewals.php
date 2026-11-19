@@ -159,63 +159,11 @@ class PeachPaymentsChargeRenewals extends Command
      */
     private function prepareCharge(Subscription $subscription): ?array
     {
-        // Re-check due-ness under the lock: a concurrent run may have renewed or
-        // canceled this subscription between the outer query and acquiring the lock.
-        if (! in_array($subscription->status, [SubscriptionStatus::ACTIVE->value, SubscriptionStatus::PAST_DUE->value], true)
-            || $subscription->ends_at === null
-            || Carbon::parse($subscription->ends_at)->isFuture()
-        ) {
-            $this->skippedCount++;
-
+        if (! $this->chargeable($subscription)) {
             return null;
         }
-
-        // Cancellation requested for end of cycle and the cycle has now ended: stop billing.
-        if ($subscription->is_canceled_at_end_of_cycle) {
-            $this->subscriptionService->updateSubscription($subscription, [
-                'status' => SubscriptionStatus::CANCELED->value,
-            ]);
-
-            $this->canceledCount++;
-            $this->info(sprintf('[%s] canceled at end of cycle.', $subscription->uuid));
-
-            return null;
-        }
-
         $extra = $subscription->extra_payment_provider_data ?? [];
-
-        // An earlier charge whose outcome is unknown: charging again could take the money twice.
-        if (! empty($extra['renewal_in_flight'])) {
-            $this->unresolvedCount++;
-            $this->error(sprintf('[%s] an earlier renewal (%s, since %s) has no known outcome. Check Peach, then run with --settle or --release.',
-                $subscription->uuid, $extra['renewal_in_flight']['merchant_transaction_id'] ?? '?', $extra['renewal_in_flight']['started_at'] ?? '?'));
-
-            return null;
-        }
-
-        // Daily retry cadence for subscriptions already flagged PAST_DUE.
-        if ($subscription->status === SubscriptionStatus::PAST_DUE->value && ! empty($extra['last_renewal_attempt_at'])) {
-            $lastAttemptAt = Carbon::parse($extra['last_renewal_attempt_at']);
-
-            // Absolute diff: Carbon 3 returns signed values by default, which would
-            // make this comparison always true for past timestamps.
-            if (now()->diffInHours($lastAttemptAt, true) < 24) {
-                $this->skippedCount++;
-                $this->info(sprintf('[%s] retry not due yet (last attempt %s).', $subscription->uuid, $lastAttemptAt->toIso8601String()));
-
-                return null;
-            }
-        }
-
-        $registrationId = $extra['registration_id'] ?? $subscription->payment_provider_subscription_id ?? null;
-
-        if (! $registrationId) {
-            $this->skippedCount++;
-            $this->error(sprintf('[%s] no registration id available, cannot charge. Skipping.', $subscription->uuid));
-            Log::error('PeachPaymentsChargeRenewals: missing registration id.', ['subscription_uuid' => $subscription->uuid]);
-
-            return null;
-        }
+        $registrationId = $extra['registration_id'] ?? $subscription->payment_provider_subscription_id;
 
         $amountMinor = (int) $subscription->price;
         [$discountMinor, $discountUsedUp] = $this->renewalDiscount($extra, $amountMinor);
@@ -257,6 +205,70 @@ class PeachPaymentsChargeRenewals extends Command
             'discount_used_up' => $discountUsedUp,
             'merchant_transaction_id' => $merchantTransactionId,
         ];
+    }
+
+    /** Whether a locked subscription is charged in this run; says why not when it is not. */
+    private function chargeable(Subscription $subscription): bool
+    {
+        // Re-check due-ness under the lock: a concurrent run may have renewed or
+        // canceled this subscription between the outer query and acquiring the lock.
+        if (! in_array($subscription->status, [SubscriptionStatus::ACTIVE->value, SubscriptionStatus::PAST_DUE->value], true)
+            || $subscription->ends_at === null
+            || Carbon::parse($subscription->ends_at)->isFuture()
+        ) {
+            $this->skippedCount++;
+
+            return false;
+        }
+
+        // Cancellation requested for end of cycle and the cycle has now ended: stop billing.
+        if ($subscription->is_canceled_at_end_of_cycle) {
+            $this->subscriptionService->updateSubscription($subscription, [
+                'status' => SubscriptionStatus::CANCELED->value,
+            ]);
+
+            $this->canceledCount++;
+            $this->info(sprintf('[%s] canceled at end of cycle.', $subscription->uuid));
+
+            return false;
+        }
+
+        $extra = $subscription->extra_payment_provider_data ?? [];
+
+        // An earlier charge whose outcome is unknown: charging again could take the money twice.
+        if (! empty($extra['renewal_in_flight'])) {
+            $this->unresolvedCount++;
+            $this->error(sprintf('[%s] an earlier renewal (%s, since %s) has no known outcome. Check Peach, then run with --settle or --release.',
+                $subscription->uuid, $extra['renewal_in_flight']['merchant_transaction_id'] ?? '?', $extra['renewal_in_flight']['started_at'] ?? '?'));
+
+            return false;
+        }
+
+        // Daily retry cadence for subscriptions already flagged PAST_DUE.
+        if ($subscription->status === SubscriptionStatus::PAST_DUE->value && ! empty($extra['last_renewal_attempt_at'])) {
+            $lastAttemptAt = Carbon::parse($extra['last_renewal_attempt_at']);
+
+            // Absolute diff: Carbon 3 returns signed values by default, which would
+            // make this comparison always true for past timestamps.
+            if (now()->diffInHours($lastAttemptAt, true) < 24) {
+                $this->skippedCount++;
+                $this->info(sprintf('[%s] retry not due yet (last attempt %s).', $subscription->uuid, $lastAttemptAt->toIso8601String()));
+
+                return false;
+            }
+        }
+
+        $registrationId = $extra['registration_id'] ?? $subscription->payment_provider_subscription_id ?? null;
+
+        if (! $registrationId) {
+            $this->skippedCount++;
+            $this->error(sprintf('[%s] no registration id available, cannot charge. Skipping.', $subscription->uuid));
+            Log::error('PeachPaymentsChargeRenewals: missing registration id.', ['subscription_uuid' => $subscription->uuid]);
+
+            return false;
+        }
+
+        return true;
     }
 
     /**
