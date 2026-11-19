@@ -191,6 +191,22 @@ subscription's `ends_at` is due, then advances `ends_at` by one billing interval
 renewal charges are retried daily (default 3 attempts, `max_renewal_retries`) with the
 subscription marked `past_due`, then canceled.
 
+A renewal is never charged twice. Each attempt is recorded on the subscription
+(`renewal_in_flight`) before the card is charged, and the charge runs outside any database
+transaction. If the outcome is unknown (a pending result, a timeout or a server error), the
+record stays and the command skips that subscription until an operator checks the
+transaction in the Peach dashboard and runs one of:
+
+```bash
+php artisan app:peachpayments-charge-renewals --settle=<subscription-uuid>   # Peach shows the charge succeeded
+php artisan app:peachpayments-charge-renewals --release=<subscription-uuid>  # Peach shows no charge was taken
+```
+
+Discounts follow Stripe's coupon rules: one with `duration_in_months` applies to renewals
+until that many months after it was added (or after checkout), a recurring one without a
+duration applies to every renewal, and any other applies once. A one-off discount used at
+checkout does not carry over to renewals.
+
 Notes and current limitations:
 
 - **No proration** — a plan change takes effect at the next renewal charge.
@@ -201,7 +217,11 @@ Notes and current limitations:
   (currently a nominal 1.00 charge; switch to zero-amount once sandbox-verified).
 - **Refunds** — initiate refunds from the Peach dashboard; the webhook marks the local
   transaction and order as refunded. Only **full** refunds are supported — a partial
-  refund is logged and ignored locally (SaasyKit has no partial-refund state).
+  refund is logged and ignored locally (SaasyKit has no partial-refund state). A refund
+  for an order with no successful payment is logged and ignored.
+- **Webhook format** — configure form-encoded notifications. A JSON body with payment
+  fields is refused (HTTP 415) rather than acknowledged unverified; only Peach's empty
+  JSON configuration ping is answered 200.
 
 ## Testing
 

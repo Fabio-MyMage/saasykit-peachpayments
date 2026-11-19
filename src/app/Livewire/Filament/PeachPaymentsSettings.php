@@ -13,6 +13,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Illuminate\Support\HtmlString;
 use Livewire\Component;
+use Illuminate\Contracts\View\View;
 
 class PeachPaymentsSettings extends Component implements HasForms
 {
@@ -27,7 +28,7 @@ class PeachPaymentsSettings extends Component implements HasForms
         $this->configService = $configService;
     }
 
-    public function render()
+    public function render(): View
     {
         return view('livewire.filament.peach-payments-settings');
     }

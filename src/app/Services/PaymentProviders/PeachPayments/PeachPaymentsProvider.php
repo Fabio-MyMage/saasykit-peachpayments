@@ -168,6 +168,10 @@ class PeachPaymentsProvider implements PaymentProviderInterface
         $extraProviderData = array_merge($subscription->extra_payment_provider_data ?? [], [
             'checkout_id' => $response['checkoutId'],
         ]);
+        // A discount that outlasts this first charge is kept for the renewal command; a one-off one is used up here.
+        if ($discount !== null && ($discount->is_recurring || $discount->duration_in_months !== null)) {
+            $extraProviderData['discount'] = $this->storedDiscount($discount);
+        }
 
         $this->subscriptionService->updateSubscription($subscription, [
             'payment_provider_id' => $paymentProvider->id,
@@ -271,13 +275,7 @@ class PeachPaymentsProvider implements PaymentProviderInterface
         // Peach Payments has no native discount concept: store the discount locally so the
         // renewal command can compute a reduced recurring charge.
         $extraProviderData = array_merge($subscription->extra_payment_provider_data ?? [], [
-            'discount' => [
-                'id' => $discount->id,
-                'type' => $discount->type,
-                'amount' => $discount->amount,
-                'is_recurring' => $discount->is_recurring,
-                'duration_in_months' => $discount->duration_in_months,
-            ],
+            'discount' => $this->storedDiscount($discount),
         ]);
 
         $this->subscriptionService->updateSubscription($subscription, [
@@ -342,6 +340,24 @@ class PeachPaymentsProvider implements PaymentProviderInterface
 
         // Format directly from integer minor units - no float division.
         return sprintf('%d.%02d', intdiv($minorUnitAmount, 100), $minorUnitAmount % 100);
+    }
+
+    /**
+     * The discount as the renewal command reads it. Like Stripe's coupons, a duration counts from now (valid_until),
+     * recurring without one lasts forever, and otherwise it applies to one charge.
+     *
+     * @return array<string, mixed>
+     */
+    private function storedDiscount(Discount $discount): array
+    {
+        return [
+            'id' => $discount->id,
+            'type' => $discount->type,
+            'amount' => $discount->amount,
+            'is_recurring' => $discount->is_recurring,
+            'duration_in_months' => $discount->duration_in_months,
+            'valid_until' => $discount->duration_in_months !== null ? now()->addMonths((int) $discount->duration_in_months)->toIso8601String() : null,
+        ];
     }
 
     private function applyDiscount(int $amount, ?Discount $discount): int

@@ -36,7 +36,16 @@ class PeachPaymentsWebhookHandler
     {
         // Peach sends a one-off JSON "configuration ping" the first time a webhook
         // URL is registered/tested. It carries no signature and must be answered 200.
+        // A JSON body that carries payment fields is a real notification in a format this
+        // handler does not verify: refuse it loudly instead of acknowledging and dropping it.
         if ($request->isJson()) {
+            $paymentFields = array_intersect_key((array) $request->json()->all(), array_flip(['id', 'checkoutId', 'merchantTransactionId', 'result', 'paymentType', 'amount', 'registrationId']));
+            if ($paymentFields !== []) {
+                Log::error('PeachPayments webhook: JSON payment notification received; set the Peach webhook to form-encoded notifications.');
+
+                return response()->json(['message' => 'Unsupported notification format'], 415);
+            }
+
             return response()->json(['status' => 'ok']);
         }
 
@@ -105,7 +114,7 @@ class PeachPaymentsWebhookHandler
             return response()->json(['status' => 'ignored']);
         }
 
-        // 1. Explicit correlation via customParameters (set by us at checkout creation time).
+        // The references MyMage put in customParameters at checkout are authoritative when present.
         if (! empty($customParameters['pm_change_subscription_uuid'])) {
             $subscription = $this->findSubscriptionByUuid($customParameters['pm_change_subscription_uuid']);
 
@@ -130,7 +139,7 @@ class PeachPaymentsWebhookHandler
             }
         }
 
-        // 2. Fallback: lookup by the checkoutId we stored when the checkout was created.
+        // Without them, the checkout ID stored when the checkout was created identifies the order.
         $order = $this->orderService->findByPaymentProviderOrderId($paymentProvider, $checkoutId);
 
         if ($order) {
@@ -292,9 +301,19 @@ class PeachPaymentsWebhookHandler
             ->latest('id')
             ->first();
 
+        // A refund with no successful payment behind it cannot be checked against an amount: leave the order alone.
+        if ($transaction === null) {
+            Log::warning('PeachPayments webhook: refund for an order with no successful payment - order left unchanged', [
+                'order_uuid' => $order->uuid,
+                'refund_amount' => $refundAmountMinor,
+            ]);
+
+            return;
+        }
+
         // Partial refunds have no local representation in SaasyKit: marking the whole
         // order REFUNDED for a 10% refund would be wrong, so log and leave state alone.
-        if ($transaction && $refundAmountMinor > 0 && $refundAmountMinor < (int) $transaction->amount) {
+        if ($refundAmountMinor > 0 && $refundAmountMinor < (int) $transaction->amount) {
             Log::warning('PeachPayments webhook: partial refund received - not supported, order left unchanged', [
                 'order_uuid' => $order->uuid,
                 'transaction_amount' => (int) $transaction->amount,
@@ -304,9 +323,7 @@ class PeachPaymentsWebhookHandler
             return;
         }
 
-        if ($transaction) {
-            $this->transactionService->updateTransaction($transaction, $resultCode, TransactionStatus::REFUNDED);
-        }
+        $this->transactionService->updateTransaction($transaction, $resultCode, TransactionStatus::REFUNDED);
 
         if ($order->status !== OrderStatus::REFUNDED->value) {
             $this->orderService->updateOrder($order, [
@@ -572,6 +589,7 @@ class PeachPaymentsWebhookHandler
         try {
             return $this->orderService->findByUuidOrFail($uuid);
         } catch (Throwable) {
+            // An unknown reference means the webhook is not for this application; the caller ignores null.
             return null;
         }
     }
@@ -585,6 +603,7 @@ class PeachPaymentsWebhookHandler
         try {
             return $this->subscriptionService->findByUuidOrFail($uuid);
         } catch (Throwable) {
+            // An unknown reference means the webhook is not for this application; the caller ignores null.
             return null;
         }
     }

@@ -27,8 +27,7 @@ class PeachPaymentsClientTest extends FeatureTest
 
         // The access token is cached across requests/tests; clear it so each test
         // starts with a fresh OAuth exchange.
-        Cache::forget('peachpayments.access_token');
-        Cache::forget('peachpayments.access_token.expires_in');
+        Cache::flush();
 
         $this->client = app(PeachPaymentsClient::class);
     }
@@ -158,6 +157,24 @@ class PeachPaymentsClientTest extends FeatureTest
 
             return true;
         });
+    }
+
+    public function test_a_new_mode_or_new_credentials_never_reuse_the_cached_token(): void
+    {
+        Http::fake([
+            '*/api/oauth/token' => Http::sequence()
+                ->push(['access_token' => 'sandbox-token', 'expires_in' => 300])
+                ->push(['access_token' => 'live-token', 'expires_in' => 300]),
+            '*/v2/checkout' => Http::response(['checkoutId' => 'chk', 'redirectUrl' => 'https://example.test/chk']),
+        ]);
+        $payload = ['merchantTransactionId' => 'o-000002', 'amount' => '1.00', 'currency' => 'USD', 'shopperResultUrl' => 'https://saasykit.test/r',
+            'notificationUrl' => 'https://saasykit.test/w', 'cancelUrl' => 'https://saasykit.test/c'];
+
+        app(PeachPaymentsClient::class)->createCheckout($payload);
+        config()->set('services.peachpayments.test_mode', false);
+        app(PeachPaymentsClient::class)->createCheckout($payload);
+
+        Http::assertSent(fn ($request) => str_ends_with($request->url(), '/v2/checkout') && $request->header('Authorization') === ['Bearer live-token']);
     }
 
     public function test_charge_registration_sends_standing_instruction_params_and_returns_declined_body_without_throwing(): void

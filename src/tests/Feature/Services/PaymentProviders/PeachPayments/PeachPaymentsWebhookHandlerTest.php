@@ -45,6 +45,27 @@ class PeachPaymentsWebhookHandlerTest extends FeatureTest
         $response->assertJson(['status' => 'ok']);
     }
 
+    public function test_a_json_payment_notification_is_refused_not_dropped(): void
+    {
+        $this->postJson(route('payments-providers.peachpayments.webhook'), ['id' => 'pay-1', 'result' => ['code' => '000.000.000']])
+            ->assertStatus(415);
+    }
+
+    public function test_a_refund_for_an_order_without_a_successful_payment_leaves_it_unchanged(): void
+    {
+        $user = $this->createUser();
+        $order = Order::factory()->create([
+            'user_id' => $user->id,
+            'currency_id' => $this->currency->id,
+            'payment_provider_id' => $this->paymentProvider->id,
+            'status' => OrderStatus::SUCCESS->value,
+        ]);
+
+        $this->postWebhook($this->signedOrderPayload($order->uuid, '000.000.000', 'RF'))->assertStatus(200);
+
+        $this->assertEquals(OrderStatus::SUCCESS->value, $order->fresh()->status);
+    }
+
     public function test_invalid_signature_returns_401_and_does_not_change_state(): void
     {
         $user = $this->createUser();

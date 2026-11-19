@@ -228,4 +228,117 @@ class PeachPaymentsChargeRenewalsTest extends FeatureTest
 
         Http::assertNothingSent();
     }
+
+    /** A Peach-managed subscription whose period ended yesterday. */
+    private function dueSubscription(array $extra = [], array $attributes = []): Subscription
+    {
+        return Subscription::factory()->create([
+            'user_id' => $this->createUser()->id,
+            'currency_id' => $this->currency->id,
+            'payment_provider_id' => $this->paymentProvider->id,
+            'type' => SubscriptionType::PAYMENT_PROVIDER_MANAGED,
+            'status' => SubscriptionStatus::ACTIVE->value,
+            'ends_at' => Carbon::now()->subDay()->startOfSecond(),
+            'payment_provider_subscription_id' => 'reg-due',
+            'extra_payment_provider_data' => ['registration_id' => 'reg-due', ...$extra],
+            'price' => 2000,
+            ...$attributes,
+        ]);
+    }
+
+    private function fakeCharge(string $code, string $id = 'pay-1'): void
+    {
+        Http::fake(['https://sandbox-card.peachpayments.com/v1/registrations/*' => Http::response(['id' => $id, 'result' => ['code' => $code]], 200)]);
+    }
+
+    public function test_a_card_change_charge_after_the_period_end_is_not_mistaken_for_the_renewal(): void
+    {
+        $subscription = $this->dueSubscription();
+        $this->app->make(\App\Services\TransactionService::class)->createForSubscription($subscription, 100, 0, 0, 0, $this->currency,
+            $this->paymentProvider, 'card-change-1', '000.000.000', TransactionStatus::SUCCESS);
+        $this->fakeCharge('000.000.000', 'pay-renewal');
+
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+
+        $this->assertTrue(Carbon::parse($subscription->fresh()->ends_at)->isFuture());
+        $this->assertDatabaseHas('transactions', ['subscription_id' => $subscription->id, 'payment_provider_transaction_id' => 'pay-renewal']);
+    }
+
+    public function test_a_pending_renewal_is_never_charged_again_until_an_operator_settles_it(): void
+    {
+        $subscription = $this->dueSubscription();
+        $this->fakeCharge('000.200.000', 'pay-pending');
+
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+        $this->travel(25)->hours();
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+
+        Http::assertSentCount(1);
+        $this->assertDatabaseHas('transactions', ['payment_provider_transaction_id' => 'pay-pending', 'status' => TransactionStatus::PENDING->value]);
+
+        $this->artisan('app:peachpayments-charge-renewals', ['--settle' => $subscription->uuid])->assertExitCode(0);
+
+        $subscription->refresh();
+        $this->assertTrue(Carbon::parse($subscription->ends_at)->isFuture());
+        $this->assertArrayNotHasKey('renewal_in_flight', $subscription->extra_payment_provider_data);
+        $this->assertDatabaseHas('transactions', ['payment_provider_transaction_id' => 'pay-pending', 'status' => TransactionStatus::SUCCESS->value]);
+    }
+
+    public function test_a_charge_whose_response_is_lost_is_never_repeated_until_an_operator_releases_it(): void
+    {
+        $subscription = $this->dueSubscription();
+        $attempts = 0;
+        $lost = true;
+        Http::fake(['https://sandbox-card.peachpayments.com/v1/registrations/*' => function () use (&$attempts, &$lost) {
+            $attempts++;
+            if ($lost) {
+                throw new \Illuminate\Http\Client\ConnectionException('timed out');
+            }
+
+            return Http::response(['id' => 'pay-after-release', 'result' => ['code' => '000.000.000']], 200);
+        }]);
+
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+
+        $this->assertSame(1, $attempts);
+        $this->assertNotEmpty($subscription->fresh()->extra_payment_provider_data['renewal_in_flight']);
+
+        $this->artisan('app:peachpayments-charge-renewals', ['--release' => $subscription->uuid])->assertExitCode(0);
+        $lost = false;
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+
+        $this->assertDatabaseHas('transactions', ['payment_provider_transaction_id' => 'pay-after-release', 'status' => TransactionStatus::SUCCESS->value]);
+    }
+
+    public function test_a_one_off_discount_applies_to_one_renewal_and_an_expired_one_to_none(): void
+    {
+        $once = $this->dueSubscription(['discount' => ['type' => 'percentage', 'amount' => 50, 'is_recurring' => false, 'duration_in_months' => null]]);
+        $expired = $this->dueSubscription(['discount' => ['type' => 'percentage', 'amount' => 50, 'is_recurring' => true, 'duration_in_months' => 1,
+            'valid_until' => now()->subDay()->toIso8601String()]]);
+        $forever = $this->dueSubscription(['discount' => ['type' => 'fixed', 'amount' => 500, 'is_recurring' => true, 'duration_in_months' => null]]);
+        $this->fakeCharge('000.000.000');
+
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+
+        $charged = fn (Subscription $subscription) => \App\Models\Transaction::where('subscription_id', $subscription->id)->value('amount');
+        $this->assertSame([1000, 2000, 1500], [(int) $charged($once), (int) $charged($expired), (int) $charged($forever)]);
+        $this->assertArrayNotHasKey('discount', $once->fresh()->extra_payment_provider_data);
+        $this->assertArrayNotHasKey('discount', $expired->fresh()->extra_payment_provider_data);
+        $this->assertArrayHasKey('discount', $forever->fresh()->extra_payment_provider_data);
+    }
+
+    public function test_the_failed_payment_event_sees_the_updated_subscription(): void
+    {
+        $subscription = $this->dueSubscription();
+        $seen = null;
+        \Illuminate\Support\Facades\Event::listen(\App\Events\Subscription\InvoicePaymentFailed::class, function ($event) use (&$seen) {
+            $seen = Subscription::find($event->subscription->id)->status;
+        });
+        $this->fakeCharge('800.100.151');
+
+        $this->artisan('app:peachpayments-charge-renewals')->assertExitCode(0);
+
+        $this->assertSame(SubscriptionStatus::PAST_DUE->value, $seen);
+    }
 }

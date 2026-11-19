@@ -198,7 +198,7 @@ class PeachPaymentsClient
      */
     private function getAccessToken(): string
     {
-        return Cache::remember('peachpayments.access_token', $this->tokenTtl(), function () {
+        return Cache::remember($this->tokenCacheKey(), $this->tokenTtl(), function () {
             $response = Http::acceptJson()
                 ->post($this->getAuthUrl().'/api/oauth/token', [
                     'clientId' => config('services.peachpayments.client_id'),
@@ -210,15 +210,22 @@ class PeachPaymentsClient
 
             // Stash the actual expiry alongside the token so tokenTtl() can react
             // to it on the *next* fetch; on first fetch we fall back to a safe default.
-            Cache::put('peachpayments.access_token.expires_in', $body['expires_in'] ?? 300, 3600);
+            Cache::put($this->tokenCacheKey().'.expires_in', $body['expires_in'] ?? 300, 3600);
 
             return $body['access_token'] ?? $body['token'] ?? '';
         });
     }
 
+    /** One cached token per mode and credentials, so switching test mode or credentials never reuses the old token. */
+    private function tokenCacheKey(): string
+    {
+        return 'peachpayments.access_token.'.hash('sha256', json_encode([(bool) config('services.peachpayments.test_mode'),
+            config('services.peachpayments.client_id'), config('services.peachpayments.merchant_id')]));
+    }
+
     private function tokenTtl(): int
     {
-        $expiresIn = (int) Cache::get('peachpayments.access_token.expires_in', 300);
+        $expiresIn = (int) Cache::get($this->tokenCacheKey().'.expires_in', 300);
 
         return max(30, $expiresIn - 30);
     }
